@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\kiero\\source\\repos\\text\\text\\text.csproj",
+      "projectUniqueName": "C:\\Users\\kiero\\OneDrive\\Documents\\GitHub\\text\\text\\text.csproj",
       "projectName": "text",
-      "projectPath": "C:\\Users\\kiero\\source\\repos\\text\\text\\text.csproj",
+      "projectPath": "C:\\Users\\kiero\\OneDrive\\Documents\\GitHub\\text\\text\\text.csproj",
       "packagesPath": "C:\\Users\\kiero\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\kiero\\source\\repos\\text\\text\\obj\\",
+      "outputPath": "C:\\Users\\kiero\\OneDrive\\Documents\\GitHub\\text\\text\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\kiero\\AppData\\Roaming\\NuGet\\NuGet.Config",

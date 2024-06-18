@@ -1,7 +1,7 @@
 ﻿
 namespace text
 {
-    partial class Form1
+    partial class Document
     {
         /// <summary>
         ///  Required designer variable.
@@ -42,15 +42,15 @@ namespace text
             this.text.Text = "";
             this.text.TextChanged += new System.EventHandler(this.text_TextChanged);
             // 
-            // Form1
+            // Document
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.text);
             this.KeyPreview = true;
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "Document";
+            this.Text = "Document";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.ResumeLayout(false);

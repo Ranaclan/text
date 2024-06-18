@@ -11,11 +11,18 @@ using System.Windows.Input;
 
 namespace text
 {
-    public partial class Form1 : Form
+    public partial class Document : Form
     {
-        public Form1()
+        public Document()
         {
             InitializeComponent();
+
+            /*
+            foreach (FontFamily family in FontFamily.Families)
+            {
+                System.Diagnostics.Debug.WriteLine(family.Name);
+            }
+            */
         }
 
         private void Save()
@@ -95,6 +102,26 @@ namespace text
                 LoadFile();
             }
 
+            if (key == (Keys.A | Keys.Control))
+            {
+                text.SelectAll();
+            }
+
+            if (key == (Keys.C | Keys.Control))
+            {
+                text.Copy();
+            }
+
+            if (key == (Keys.V | Keys.Control))
+            {
+                text.Paste();
+            }
+
+            if (key == (Keys.X | Keys.Control))
+            {
+                text.Cut();
+            }
+
             if (key == (Keys.B | Keys.Control))
             {
                 Bold();
@@ -115,12 +142,21 @@ namespace text
                 Strike();
             }
 
-            if (key == (Keys.A | Keys.Control))
+            if (key == (Keys.OemPeriod | Keys.Control | Keys.Shift))
             {
-                text.SelectAll();
+                FontSize(1);
+            }
+
+            if (key == (Keys.Oemcomma | Keys.Control | Keys.Shift))
+            {
+                FontSize(-1);
             }
 
             if (key == (Keys.Z | Keys.Control))
+            {
+            }
+
+            if (key == (Keys.Y | Keys.Control) || key == (Keys.Z | Keys.Control | Keys.Shift))
             {
             }
 
@@ -160,6 +196,15 @@ namespace text
             if (selected != null)
             {
                 text.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Strikeout);
+            }
+        }
+
+        private void FontSize(int increment)
+        {
+            Font selected = text.SelectionFont;
+            if (selected != null)
+            {
+                text.SelectionFont = new Font(selected.Name, Math.Max(selected.Size + increment, 1), selected.Style);
             }
         }
 
