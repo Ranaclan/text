@@ -15,35 +15,33 @@ namespace text
     {
         string path;
         string name;
-        //documents
-        private List<Button> documents;
-        private DateTime clickTime;
-        private int docCount = 0;
-        private int dragged = -1;
+        //interaction
+        private int create = -1;
+        private string[] newText = { "New document", "New subgraph" };
+        private TextBox newName;
+        private int dragged = 0;
         private int xOffset;
         private int yOffset;
-        private TextBox docName;
-        private bool create = false;
+        //graphs
+        private List<Button> graphs;
+        private int graphCount = 0;
+        private DateTime graphClick;
+        //documents
+        private List<Button> documents;
+        private int docCount = 0;
+        private DateTime docClick;
 
         public Graph()
         {
             InitializeComponent();
-            documents = new List<Button>();
             path = @"C:\Users\kiero\OneDrive\Documents\text\";
             name = "graph";
+            LoadGraph(name);
         }
 
         private void Save()
         {
-            /*
-            SaveFileDialog dialogue = new SaveFileDialog();
-            dialogue.Filter = "Plain Text File (*.txt)|*.txt";
-            dialogue.DefaultExt = "*.txt";
-            dialogue.FilterIndex = 1;
-            dialogue.Title = "Save graph as";
-            */
-
-            string text = docCount.ToString() + "\n\n";
+            string text = docCount.ToString() + "\n\n" + graphCount.ToString() + "\n\n";
 
             for (int i = 0; i < docCount; i++)
             {
@@ -52,19 +50,22 @@ namespace text
                 text += documents[i].Location.X + "," + documents[i].Location.Y;
                 text += "\n";
                 text += documents[i].Size.Width + "," + documents[i].Size.Height;
+                text += "\n\n";
+            }
 
-                if (i < docCount - 1)
+            for (int i = 0; i < graphCount; i++)
+            {
+                text += graphs[i].Text;
+                text += "\n";
+                text += graphs[i].Location.X + "," + graphs[i].Location.Y;
+                text += "\n";
+                text += graphs[i].Size.Width + "," + graphs[i].Size.Height;
+
+                if (i < graphCount - 1)
                 {
                     text += "\n\n";
                 }
             }
-
-            /*
-            if (dialogue.ShowDialog() == DialogResult.OK)
-            {
-                File.WriteAllText(Path.GetFullPath(dialogue.FileName), text);
-            }
-            */
 
             File.WriteAllText(Path.GetFullPath(path + name + ".txt"), text);
         }
@@ -78,51 +79,105 @@ namespace text
             
             if (dialogue.ShowDialog() == DialogResult.OK && !string.IsNullOrEmpty(dialogue.FileName))
             {
-                foreach(Button doc in documents)
-                {
-                    Controls.Remove(doc);
-                }
-
-                string text = File.ReadAllText(Path.GetFullPath(dialogue.FileName));
-                string[] graphData = text.Split("\n\n");
-                docCount = int.Parse(graphData[0]);
-                documents = new List<Button>();
-
-                for (int i = 1; i < docCount + 1; i++)
-                {
-                    string[] docData = graphData[i].Split("\n");
-                    string[] docPosition = docData[1].Split(",");
-                    string[] docSize = docData[2].Split(",");
-
-                    documents.Add(new Button());
-                    Controls.Add(documents[i-1]);
-                    documents[i - 1].Name = (documents.Count() - 1).ToString();
-                    documents[i - 1].MouseDown += new MouseEventHandler(Document_MouseDown);
-                    documents[i - 1].MouseUp += new MouseEventHandler(Document_MouseUp);
-                    documents[i - 1].MouseMove += new MouseEventHandler(Document_MouseMove);
-                    documents[i - 1].Text = docData[0].ToString();
-                    documents[i - 1].Location = new Point(int.Parse(docPosition[0]), int.Parse(docPosition[1]));
-                    documents[i - 1].Size = new Size(int.Parse(docSize[0]), int.Parse(docSize[1]));
-                }
+                LoadGraph(dialogue.FileName);
             }
         }
 
-        private void NewDocument(Point position)
+        private void ChangeGraph(string name)
         {
-            docName = new TextBox();
-            create = true;
-            Controls.Add(docName);
-            docName.Location = position;
-            docName.Focus();
-            docName.KeyDown += new KeyEventHandler(New_KeyDown);
+            foreach (Button doc in documents)
+            {
+                Controls.Remove(doc);
+            }
+            foreach (Button graph in graphs)
+            {
+                Controls.Remove(graph);
+            }
+
+            LoadGraph(name);
+        }
+
+        private void LoadGraph(string name)
+        {
+            string file = path + name + ".txt";
+            this.name = name;
+
+            string text = File.ReadAllText(Path.GetFullPath(file));
+            string[] graphData = text.Split("\n\n");
+            graphCount = int.Parse(graphData[0]);
+            graphs = new List<Button>();
+            docCount = int.Parse(graphData[1]);
+            documents = new List<Button>();
+
+            for (int i = 0; i < docCount; i++)
+            {
+                string[] docData = graphData[i + 2].Split("\n");
+                string[] docPosition = docData[1].Split(",");
+                string[] docSize = docData[2].Split(",");
+
+                documents.Add(new Button());
+                Controls.Add(documents[i]);
+                documents[i].Name = (documents.Count() - 1).ToString();
+                documents[i].MouseDown += new MouseEventHandler(Button_MouseDown);
+                documents[i].MouseUp += new MouseEventHandler(Button_MouseUp);
+                documents[i].MouseUp += new MouseEventHandler(Document_MouseUp);
+                documents[i].MouseMove += new MouseEventHandler(Button_MouseMove);
+                documents[i].Text = docData[0].ToString();
+                documents[i].Location = new Point(int.Parse(docPosition[0]), int.Parse(docPosition[1]));
+                documents[i].Size = new Size(int.Parse(docSize[0]), int.Parse(docSize[1]));
+            }
+
+            for (int i = 0; i < graphCount; i++)
+            {
+                string[] subGraphData = graphData[i + 2 + docCount].Split("\n");
+                string[] subGraphPosition = subGraphData[1].Split(",");
+                string[] subGraphSize = subGraphData[2].Split(",");
+
+                graphs.Add(new Button());
+                Controls.Add(graphs[i]);
+                graphs[i].Name = (graphs.Count() - 1).ToString();
+                graphs[i].MouseDown += new MouseEventHandler(Button_MouseDown);
+                graphs[i].MouseUp += new MouseEventHandler(Button_MouseUp);
+                graphs[i].MouseUp += new MouseEventHandler(Subgraph_MouseUp);
+                graphs[i].MouseMove += new MouseEventHandler(Button_MouseMove);
+                graphs[i].Text = subGraphData[0].ToString();
+                graphs[i].Location = new Point(int.Parse(subGraphPosition[0]), int.Parse(subGraphPosition[1]));
+                graphs[i].Size = new Size(int.Parse(subGraphSize[0]), int.Parse(subGraphSize[1]));
+            }
+
+            dragged = 0;
+        }
+
+        private void NewFeature(int type, Point position)
+        {
+            newName = new TextBox();
+            create = type;
+            Controls.Add(newName);
+            newName.Location = position;
+            newName.Focus();
+            newName.KeyDown += new KeyEventHandler(New_KeyDown);
+            newName.Text = newText[create];
+            newName.SelectAll();
+        }
+
+        private void AddFeature()
+        {
+            switch (create)
+            {
+                case 0:
+                    CreateDocument();
+                    break;
+                case 1:
+                    CreateSubgraph();
+                    break;
+            }
         }
 
         private void New_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
             {
-                CreateDocument(docName.Text, docName.Location);
-                New_Remove();
+                AddFeature();
             }
 
             if(e.KeyCode == Keys.Escape)
@@ -133,25 +188,45 @@ namespace text
 
         private void New_Remove()
         {
-            if (create)
+            if (create != -1)
             {
-                Controls.Remove(docName);
-                create = false;
+                Controls.Remove(newName);
+                create = -1;
             }
         }
 
-        private void CreateDocument(string name, Point position)
+        private void CreateDocument()
         {
             documents.Add(new Button());
             Controls.Add(documents[^1]);
-            documents[^1].Name = (documents.Count() - 1).ToString();
-            documents[^1].MouseDown += new MouseEventHandler(Document_MouseDown);
+            documents[^1].Name = (documents.Count()).ToString();
+            documents[^1].MouseDown += new MouseEventHandler(Button_MouseDown);
+            documents[^1].MouseUp += new MouseEventHandler(Button_MouseUp);
             documents[^1].MouseUp += new MouseEventHandler(Document_MouseUp);
-            documents[^1].MouseMove += new MouseEventHandler(Document_MouseMove);
-            documents[^1].Text = name;
-            documents[^1].Location = position;
+            documents[^1].MouseMove += new MouseEventHandler(Button_MouseMove);
+            documents[^1].Text = newName.Text;
+            documents[^1].Location = newName.Location;
             documents[^1].Size = new Size(50, 70);
             docCount++;
+
+            New_Remove();
+        }
+
+        private void CreateSubgraph()
+        {
+            graphs.Add(new Button());
+            Controls.Add(graphs[^1]);
+            graphs[^1].Name = (-graphs.Count()).ToString();
+            graphs[^1].MouseDown += new MouseEventHandler(Button_MouseDown);
+            graphs[^1].MouseUp += new MouseEventHandler(Button_MouseUp);
+            graphs[^1].MouseUp += new MouseEventHandler(Subgraph_MouseUp);
+            graphs[^1].MouseMove += new MouseEventHandler(Button_MouseMove);
+            graphs[^1].Text = newName.Text;
+            graphs[^1].Location = newName.Location;
+            graphs[^1].Size = new Size(50, 70);
+            graphCount++;
+
+            New_Remove();
         }
 
         private void OpenDocument(string name)
@@ -191,6 +266,26 @@ namespace text
             }
         }
 
+        private void OpenSubgraph(string name)
+        {
+            try
+            {
+                string file = path + graphs[^1].Text + ".txt";
+
+                if (!File.Exists(file))
+                {
+                    using (File.Create(file)) { }
+                    File.WriteAllText(file, "0\n\n0\n\n");
+                }
+
+                ChangeGraph(name);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+            }
+        }
+
         private void Graph_KeyDown(object sender, KeyEventArgs e)
         {
             if (ModifierKeys == Keys.Control)
@@ -214,55 +309,19 @@ namespace text
             return base.ProcessCmdKey(ref msg, key);
         }
 
-        private void Document_MouseDown(object sender, MouseEventArgs e)
+        private void Graph_MouseDown(object sender, MouseEventArgs e)
         {
-            if(e.Button == MouseButtons.Left)
+            if (create != -1)
             {
-                Button doc = (Button)sender;
-                dragged = int.Parse(doc.Name);
-                xOffset = e.X;
-                yOffset = e.Y;
-            }
-        }
-
-        private void Document_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                dragged = -1;
-
-                if ((DateTime.Now - clickTime).TotalMilliseconds < 500)
+                if (newName.Text == "")
                 {
-                    Button doc = (Button)sender;
-                    OpenDocument(doc.Text);
+                    New_Remove();
                 }
                 else
                 {
-                    clickTime = DateTime.Now;
+                    AddFeature();
                 }
             }
-        }
-
-        private void Document_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (dragged != -1)
-            {
-                documents[dragged].Location = new Point(documents[dragged].Location.X + e.X - xOffset, documents[dragged].Location.Y + e.Y - yOffset);
-            }
-        }
-
-        private void Document_DoubleClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                Button button = (Button)sender;
-                OpenDocument(button.Text);
-            }
-        }
-
-        private void Graph_MouseDown(object sender, MouseEventArgs e)
-        {
-            New_Remove();
 
             if (e.Button == MouseButtons.Right)
             {
@@ -273,7 +332,75 @@ namespace text
         {
             if (e.Button == MouseButtons.Left)
             {
-                NewDocument(e.Location);
+                NewFeature(0, e.Location);
+            }
+
+            if(e.Button == MouseButtons.Middle)
+            {
+                NewFeature(1, e.Location);
+            }
+        }
+
+        private void Button_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                Button button = (Button)sender;
+                dragged = int.Parse(button.Name);
+                xOffset = e.X;
+                yOffset = e.Y;
+            }
+        }
+
+        private void Button_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                dragged = 0;
+            }
+        }
+
+        private void Button_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (dragged > 0)
+            {
+                documents[dragged-1].Location = new Point(documents[dragged-1].Location.X + e.X - xOffset, documents[dragged-1].Location.Y + e.Y - yOffset);
+            }
+            else if(dragged < 0)
+            {
+                graphs[-dragged - 1].Location = new Point(graphs[-dragged - 1].Location.X + e.X - xOffset, graphs[-dragged - 1].Location.Y + e.Y - yOffset);
+            }
+        }
+
+        private void Document_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if ((DateTime.Now - docClick).TotalMilliseconds < 500)
+                {
+                    Button button = (Button)sender;
+                    OpenDocument(button.Text);
+                }
+                else
+                {
+                    docClick = DateTime.Now;
+                }
+            }
+        }
+
+        private void Subgraph_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if ((DateTime.Now - graphClick).TotalMilliseconds < 500)
+                {
+                    Button button = (Button)sender;
+                    OpenSubgraph(button.Text);
+                }
+                else
+                {
+                    graphClick = DateTime.Now;
+                }
             }
         }
     }
