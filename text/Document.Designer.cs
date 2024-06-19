@@ -40,7 +40,7 @@ namespace text
             this.text.Size = new System.Drawing.Size(776, 426);
             this.text.TabIndex = 0;
             this.text.Text = "";
-            this.text.TextChanged += new System.EventHandler(this.text_TextChanged);
+            this.text.TextChanged += new System.EventHandler(this.Text_TextChanged);
             // 
             // Document
             // 
@@ -51,8 +51,8 @@ namespace text
             this.KeyPreview = true;
             this.Name = "Document";
             this.Text = "Document";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
+            this.Load += new System.EventHandler(this.Document_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Document_KeyDown);
             this.ResumeLayout(false);
 
         }

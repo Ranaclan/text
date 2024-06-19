@@ -29,35 +29,22 @@ namespace text
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(560, 225);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Document_MouseDown);
-            this.button1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Document_MouseMove);
-            this.button1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Document_MouseUp);
             // 
             // Graph
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.button1);
+            this.KeyPreview = true;
             this.Name = "Graph";
             this.Text = "Graph";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Graph_KeyDown);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Graph_MouseDown);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button button1;
     }
 }

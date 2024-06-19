@@ -28,10 +28,10 @@ namespace text
         private void Save()
         {
             SaveFileDialog dialogue = new SaveFileDialog();
-            dialogue.Filter = "Rich Text File (*.rtf)|*.rtf|Plain Text File (*.txt)|*.txt"; //Don't include space when when typing *.ext. Because space is treated as extension
+            dialogue.Filter = "Rich Text File (*.rtf)|*.rtf|Plain Text File (*.txt)|*.txt";
             dialogue.DefaultExt = "*.rtf";
             dialogue.FilterIndex = 1;
-            dialogue.Title = "Save As";
+            dialogue.Title = "Save document as";
 
             if (dialogue.ShowDialog() == DialogResult.OK)
             {
@@ -48,7 +48,6 @@ namespace text
 
         private void LoadFile()
         {
-
             OpenFileDialog dialogue = new OpenFileDialog();
             dialogue.Filter = "Rich Text File (*.rtf)|*.rtf| Plain Text File (*.txt)|*.txt";
             dialogue.FilterIndex = 1;
@@ -77,12 +76,12 @@ namespace text
             }
         }
 
-        private void text_TextChanged(object sender, EventArgs e)
+        private void Text_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        private void Document_KeyDown(object sender, KeyEventArgs e)
         {
             if (ModifierKeys == Keys.Control)
             {
@@ -208,7 +207,7 @@ namespace text
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Document_Load(object sender, EventArgs e)
         {
 
         }
