@@ -29,25 +29,25 @@ namespace text
         /// </summary>
         private void InitializeComponent()
         {
-            this.text = new System.Windows.Forms.RichTextBox();
+            this.textBox = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
-            // text
+            // textBox
             // 
-            this.text.Location = new System.Drawing.Point(12, 12);
-            this.text.Name = "text";
-            this.text.ShortcutsEnabled = false;
-            this.text.Size = new System.Drawing.Size(776, 426);
-            this.text.TabIndex = 0;
-            this.text.Text = "";
-            this.text.TextChanged += new System.EventHandler(this.Text_TextChanged);
+            this.textBox.Location = new System.Drawing.Point(12, 12);
+            this.textBox.Name = "textBox";
+            this.textBox.ShortcutsEnabled = false;
+            this.textBox.Size = new System.Drawing.Size(776, 426);
+            this.textBox.TabIndex = 0;
+            this.textBox.Text = "";
+            this.textBox.TextChanged += new System.EventHandler(this.Text_TextChanged);
             // 
             // Document
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.text);
+            this.Controls.Add(this.textBox);
             this.KeyPreview = true;
             this.Name = "Document";
             this.Text = "Document";
@@ -59,7 +59,7 @@ namespace text
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox text;
+        private System.Windows.Forms.RichTextBox textBox;
     }
 }
 

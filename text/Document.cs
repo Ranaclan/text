@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.IO;
 
 namespace text
 {
@@ -25,6 +26,16 @@ namespace text
             */
         }
 
+        public void LoadText(string path)
+        {
+            textBox.LoadFile(path, RichTextBoxStreamType.RichText);
+        }
+
+        public void LoadNewText(string path)
+        {
+            textBox.Text = File.ReadAllText(path);
+        }
+
         private void Save()
         {
             SaveFileDialog dialogue = new SaveFileDialog();
@@ -37,11 +48,11 @@ namespace text
             {
                 if (dialogue.FilterIndex == 1)
                 {
-                    text.SaveFile(dialogue.FileName, RichTextBoxStreamType.RichText);
+                    textBox.SaveFile(dialogue.FileName, RichTextBoxStreamType.RichText);
                 }
                 else
                 {
-                    text.SaveFile(dialogue.FileName, RichTextBoxStreamType.PlainText);
+                    textBox.SaveFile(dialogue.FileName, RichTextBoxStreamType.PlainText);
                 }
             }
         }
@@ -49,7 +60,7 @@ namespace text
         private void LoadFile()
         {
             OpenFileDialog dialogue = new OpenFileDialog();
-            dialogue.Filter = "Rich Text File (*.rtf)|*.rtf| Plain Text File (*.txt)|*.txt";
+            dialogue.Filter = "Rich Text File (*.rtf)|*.rtf|Plain Text File (*.txt)|*.txt";
             dialogue.FilterIndex = 1;
             dialogue.Title = "Load";
 
@@ -67,7 +78,7 @@ namespace text
 
                 try
                 {
-                    text.LoadFile(dialogue.FileName, type);
+                    textBox.LoadFile(dialogue.FileName, type);
                 }
                 catch
                 {
@@ -103,22 +114,22 @@ namespace text
 
             if (key == (Keys.A | Keys.Control))
             {
-                text.SelectAll();
+                textBox.SelectAll();
             }
 
             if (key == (Keys.C | Keys.Control))
             {
-                text.Copy();
+                textBox.Copy();
             }
 
             if (key == (Keys.V | Keys.Control))
             {
-                text.Paste();
+                textBox.Paste();
             }
 
             if (key == (Keys.X | Keys.Control))
             {
-                text.Cut();
+                textBox.Cut();
             }
 
             if (key == (Keys.B | Keys.Control))
@@ -164,46 +175,46 @@ namespace text
 
         private void Bold()
         {
-            Font selected = text.SelectionFont;
+            Font selected = textBox.SelectionFont;
             if (selected != null)
             {
-                text.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Bold);
+                textBox.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Bold);
             }
         }
 
         private void Italic()
         {
-            Font selected = text.SelectionFont;
+            Font selected = textBox.SelectionFont;
             if (selected != null)
             {
-                text.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Italic);
+                textBox.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Italic);
             }
         }
 
         private void Underline()
         {
-            Font selected = text.SelectionFont;
+            Font selected = textBox.SelectionFont;
             if (selected != null)
             {
-                text.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Underline);
+                textBox.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Underline);
             }
         }
 
         private void Strike()
         {
-            Font selected = text.SelectionFont;
+            Font selected = textBox.SelectionFont;
             if (selected != null)
             {
-                text.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Strikeout);
+                textBox.SelectionFont = new Font(selected, selected.Style ^ FontStyle.Strikeout);
             }
         }
 
         private void FontSize(int increment)
         {
-            Font selected = text.SelectionFont;
+            Font selected = textBox.SelectionFont;
             if (selected != null)
             {
-                text.SelectionFont = new Font(selected.Name, Math.Max(selected.Size + increment, 1), selected.Style);
+                textBox.SelectionFont = new Font(selected.Name, Math.Max(selected.Size + increment, 1), selected.Style);
             }
         }
 
