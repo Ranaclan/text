@@ -30,63 +30,196 @@ namespace text
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.graphContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.documentContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.subgraphContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.documentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.subgraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip1.SuspendLayout();
+            this.graphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.duplicateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.duplicateToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.graphContextMenu.SuspendLayout();
+            this.documentContextMenu.SuspendLayout();
+            this.subgraphContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
-            // contextMenuStrip1
+            // graphContextMenu
             // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.graphContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(117, 26);
+            this.graphContextMenu.Name = "graphContextMenu";
+            this.graphContextMenu.Size = new System.Drawing.Size(99, 26);
+            // 
+            // documentContextMenu
+            // 
+            this.documentContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem,
+            this.renameToolStripMenuItem,
+            this.copyToolStripMenuItem,
+            this.duplicateToolStripMenuItem,
+            this.cutToolStripMenuItem,
+            this.deleteToolStripMenuItem});
+            this.documentContextMenu.Name = "documentContextMenu";
+            this.documentContextMenu.Size = new System.Drawing.Size(125, 136);
+            this.documentContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpen);
+            // 
+            // subgraphContextMenu
+            // 
+            this.subgraphContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem1,
+            this.renameToolStripMenuItem1,
+            this.copyToolStripMenuItem1,
+            this.duplicateToolStripMenuItem1,
+            this.cutToolStripMenuItem1,
+            this.deleteToolStripMenuItem1});
+            this.subgraphContextMenu.Name = "subgraphContextMenu";
+            this.subgraphContextMenu.Size = new System.Drawing.Size(125, 136);
+            this.subgraphContextMenu.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuOpen);
             // 
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.documentToolStripMenuItem,
-            this.subgraphToolStripMenuItem});
+            this.graphToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.newToolStripMenuItem.Text = "New (n)";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.newToolStripMenuItem.Text = "New";
             // 
             // documentToolStripMenuItem
             // 
             this.documentToolStripMenuItem.Name = "documentToolStripMenuItem";
-            this.documentToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.documentToolStripMenuItem.Text = "Document (d)";
+            this.documentToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.documentToolStripMenuItem.Text = "Document";
+            this.documentToolStripMenuItem.Click += new System.EventHandler(this.AddDocument);
             // 
-            // subgraphToolStripMenuItem
+            // graphToolStripMenuItem
             // 
-            this.subgraphToolStripMenuItem.Name = "subgraphToolStripMenuItem";
-            this.subgraphToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.subgraphToolStripMenuItem.Text = "Subgraph (s)";
+            this.graphToolStripMenuItem.Name = "graphToolStripMenuItem";
+            this.graphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.graphToolStripMenuItem.Text = "Graph";
+            this.graphToolStripMenuItem.Click += new System.EventHandler(this.AddGraph);
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Text = "Open";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.Document_ContextMenuOpen);
+            // 
+            // renameToolStripMenuItem
+            // 
+            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameToolStripMenuItem.Text = "Rename";
+            // 
+            // copyToolStripMenuItem
+            // 
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem.Text = "Copy";
+            // 
+            // duplicateToolStripMenuItem
+            // 
+            this.duplicateToolStripMenuItem.Name = "duplicateToolStripMenuItem";
+            this.duplicateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.duplicateToolStripMenuItem.Text = "Duplicate";
+            // 
+            // cutToolStripMenuItem
+            // 
+            this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cutToolStripMenuItem.Text = "Cut";
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            // 
+            // openToolStripMenuItem1
+            // 
+            this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
+            this.openToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem1.Text = "Open";
+            // 
+            // renameToolStripMenuItem1
+            // 
+            this.renameToolStripMenuItem1.Name = "renameToolStripMenuItem1";
+            this.renameToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.renameToolStripMenuItem1.Text = "Rename";
+            // 
+            // copyToolStripMenuItem1
+            // 
+            this.copyToolStripMenuItem1.Name = "copyToolStripMenuItem1";
+            this.copyToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem1.Text = "Copy";
+            // 
+            // duplicateToolStripMenuItem1
+            // 
+            this.duplicateToolStripMenuItem1.Name = "duplicateToolStripMenuItem1";
+            this.duplicateToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.duplicateToolStripMenuItem1.Text = "Duplicate";
+            // 
+            // cutToolStripMenuItem1
+            // 
+            this.cutToolStripMenuItem1.Name = "cutToolStripMenuItem1";
+            this.cutToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.cutToolStripMenuItem1.Text = "Cut";
+            // 
+            // deleteToolStripMenuItem1
+            // 
+            this.deleteToolStripMenuItem1.Name = "deleteToolStripMenuItem1";
+            this.deleteToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.deleteToolStripMenuItem1.Text = "Delete";
             // 
             // Graph
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.ContextMenuStrip = this.contextMenuStrip1;
+            this.ContextMenuStrip = this.graphContextMenu;
             this.KeyPreview = true;
             this.Name = "Graph";
             this.Text = "Graph";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Graph_KeyDown);
             this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.Graph_DoubleClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Graph_MouseDown);
-            this.contextMenuStrip1.ResumeLayout(false);
+            this.graphContextMenu.ResumeLayout(false);
+            this.documentContextMenu.ResumeLayout(false);
+            this.subgraphContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ContextMenuStrip graphContextMenu;
+        private System.Windows.Forms.ContextMenuStrip documentContextMenu;
+        private System.Windows.Forms.ContextMenuStrip subgraphContextMenu;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem documentToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem subgraphToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem graphToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
     }
 }

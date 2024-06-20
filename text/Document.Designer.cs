@@ -51,6 +51,7 @@ namespace text
             this.KeyPreview = true;
             this.Name = "Document";
             this.Text = "Document";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Document_FormClosing);
             this.Load += new System.EventHandler(this.Document_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Document_KeyDown);
             this.ResumeLayout(false);

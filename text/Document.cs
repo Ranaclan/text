@@ -14,9 +14,15 @@ namespace text
 {
     public partial class Document : Form
     {
-        public Document()
+        string name;
+        string path;
+
+        public Document(string name, string path)
         {
             InitializeComponent();
+
+            this.name = name;
+            this.path = path;
 
             /*
             foreach (FontFamily family in FontFamily.Families)
@@ -31,13 +37,10 @@ namespace text
             textBox.LoadFile(path, RichTextBoxStreamType.RichText);
         }
 
-        public void LoadNewText(string path)
-        {
-            textBox.Text = File.ReadAllText(path);
-        }
-
         private void Save()
         {
+            textBox.SaveFile(path, RichTextBoxStreamType.RichText);
+            /*
             SaveFileDialog dialogue = new SaveFileDialog();
             dialogue.Filter = "Rich Text File (*.rtf)|*.rtf|Plain Text File (*.txt)|*.txt";
             dialogue.DefaultExt = "*.rtf";
@@ -55,6 +58,7 @@ namespace text
                     textBox.SaveFile(dialogue.FileName, RichTextBoxStreamType.PlainText);
                 }
             }
+            */
         }
 
         private void LoadFile()
@@ -221,6 +225,11 @@ namespace text
         private void Document_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void Document_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Save();
         }
     }
 }

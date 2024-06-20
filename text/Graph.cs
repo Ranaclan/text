@@ -13,8 +13,8 @@ namespace text
 {
     public partial class Graph : Form
     {
-        string path;
         string name;
+        string path;
         //interaction
         private int create = -1;
         private string[] newText = { "New document", "New subgraph" };
@@ -22,6 +22,7 @@ namespace text
         private int dragged = 0;
         private int xOffset;
         private int yOffset;
+        private string context;
         //graphs
         private List<Button> graphs;
         private int graphCount = 0;
@@ -34,8 +35,8 @@ namespace text
         public Graph()
         {
             InitializeComponent();
-            path = @"C:\Users\kiero\OneDrive\Documents\text\";
             name = "graph";
+            path = @"C:\Users\kiero\OneDrive\Documents\text\";
             LoadGraph(name);
         }
 
@@ -122,6 +123,7 @@ namespace text
                 documents[i].MouseUp += new MouseEventHandler(Button_MouseUp);
                 documents[i].MouseUp += new MouseEventHandler(Document_MouseUp);
                 documents[i].MouseMove += new MouseEventHandler(Button_MouseMove);
+                documents[i].ContextMenuStrip = documentContextMenu;
                 documents[i].Text = docData[0].ToString();
                 documents[i].Location = new Point(int.Parse(docPosition[0]), int.Parse(docPosition[1]));
                 documents[i].Size = new Size(int.Parse(docSize[0]), int.Parse(docSize[1]));
@@ -140,6 +142,7 @@ namespace text
                 graphs[i].MouseUp += new MouseEventHandler(Button_MouseUp);
                 graphs[i].MouseUp += new MouseEventHandler(Subgraph_MouseUp);
                 graphs[i].MouseMove += new MouseEventHandler(Button_MouseMove);
+                graphs[i].ContextMenuStrip = subgraphContextMenu;
                 graphs[i].Text = subGraphData[0].ToString();
                 graphs[i].Location = new Point(int.Parse(subGraphPosition[0]), int.Parse(subGraphPosition[1]));
                 graphs[i].Size = new Size(int.Parse(subGraphSize[0]), int.Parse(subGraphSize[1]));
@@ -171,6 +174,8 @@ namespace text
                     CreateSubgraph();
                     break;
             }
+
+            Save();
         }
 
         private void New_KeyDown(object sender, KeyEventArgs e)
@@ -204,6 +209,7 @@ namespace text
             documents[^1].MouseUp += new MouseEventHandler(Button_MouseUp);
             documents[^1].MouseUp += new MouseEventHandler(Document_MouseUp);
             documents[^1].MouseMove += new MouseEventHandler(Button_MouseMove);
+            documents[^1].ContextMenuStrip = documentContextMenu;
             documents[^1].Text = newName.Text;
             documents[^1].Location = newName.Location;
             documents[^1].Size = new Size(50, 70);
@@ -223,7 +229,8 @@ namespace text
             graphs[^1].MouseMove += new MouseEventHandler(Button_MouseMove);
             graphs[^1].Text = newName.Text;
             graphs[^1].Location = newName.Location;
-            graphs[^1].Size = new Size(50, 70);
+            graphs[^1].Size = new Size(80, 80);
+            graphs[^1].BackColor = Color.White;
             graphCount++;
 
             New_Remove();
@@ -234,25 +241,9 @@ namespace text
             try
             {
                 string file = path + name + ".rtf";
-                Document document = new Document();
-                Hide();
+                Document document = new Document(name, file);
 
-                if (!File.Exists(file))
-                {
-                    using (File.Create(file)) { }
-                    document.LoadNewText(file);
-                    document.ShowDialog();
-                    Show();
-                    return;
-                }
-
-                FileInfo info = new FileInfo(file);
-
-                if(info.Length == 0)
-                {
-                    document.LoadNewText(file);
-                }
-                else
+                if(File.Exists(file))
                 {
                     document.LoadText(file);
                 }
@@ -313,7 +304,7 @@ namespace text
         {
             if (create != -1)
             {
-                if (newName.Text == "")
+                if (newName.Text == "" || (create == 0 && newName.Text == "New document") || (create == 1 && newName.Text == "New subgraph"))
                 {
                     New_Remove();
                 }
@@ -357,6 +348,7 @@ namespace text
             if (e.Button == MouseButtons.Left)
             {
                 dragged = 0;
+                Save();
             }
         }
 
@@ -402,6 +394,33 @@ namespace text
                     graphClick = DateTime.Now;
                 }
             }
+        }
+
+        private void AddDocument(object sender, EventArgs e)
+        {
+            NewFeature(0, MousePosition);
+        }
+
+        private void AddGraph(object sender, EventArgs e)
+        {
+            NewFeature(1, MousePosition);
+        }
+
+        private void ContextMenuOpen(object sender, CancelEventArgs e)
+        {
+            ContextMenuStrip menu = sender as ContextMenuStrip;
+            Button button = (Button)menu.SourceControl;
+            context = button.Text;
+        }
+
+        private void Document_ContextMenuOpen(object sender, EventArgs e)
+        {
+            OpenDocument(context);
+        }
+
+        private void Subraph_ContextMenuOpen(object sender, EventArgs e)
+        {
+            OpenSubgraph(context);
         }
     }
 }
