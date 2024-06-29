@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace text
 {
@@ -31,6 +32,9 @@ namespace text
         private List<string> explorerEntries;
         private int draggedExplorer = 0;
         private Point originalLocation;
+        private List<Button> order;
+        private List<Button> rearranged;
+        private string supergraph;
         //graphs
         private List<Button> graphs;
         private int graphCount = 0;
@@ -48,7 +52,7 @@ namespace text
             name = "graph";
             supername = name;
             path = @"C:\Users\kiero\OneDrive\Documents\text\";
-            supergraph.Text = name;
+            supergraphButton.Text = name;
             if (!File.Exists(path + name + ".txt"))
             {
                 using (File.Create(path + name + ".txt")) { }
@@ -143,7 +147,7 @@ namespace text
 
                 documents.Add(new Button());
                 Controls.Add(documents[i]);
-                documents[i].Name = (documents.Count() - 1).ToString();
+                documents[i].Name = (documents.Count()).ToString();
                 documents[i].MouseDown += new MouseEventHandler(Button_MouseDown);
                 documents[i].MouseUp += new MouseEventHandler(Button_MouseUp);
                 documents[i].MouseUp += new MouseEventHandler(Document_MouseUp);
@@ -162,7 +166,7 @@ namespace text
 
                 graphs.Add(new Button());
                 Controls.Add(graphs[i]);
-                graphs[i].Name = (graphs.Count() - 1).ToString();
+                graphs[i].Name = (-graphs.Count()).ToString();
                 graphs[i].MouseDown += new MouseEventHandler(Button_MouseDown);
                 graphs[i].MouseUp += new MouseEventHandler(Button_MouseUp);
                 graphs[i].MouseUp += new MouseEventHandler(Subgraph_MouseUp);
@@ -197,8 +201,8 @@ namespace text
                 graphEntries[index].MouseMove += new MouseEventHandler(Explorer_MouseMove);
                 graphEntries[index].ContextMenuStrip = null;
                 graphEntries[index].Text = subGraphData[0];
-                graphEntries[index].Location = new Point(supergraph.Location.X + 10 + 10 * layer, supergraph.Location.Y + explorerGap * (index + 1));
-                graphEntries[index].Size = new Size(supergraph.Size.Width, supergraph.Size.Height);
+                graphEntries[index].Location = new Point(supergraphButton.Location.X + 10 + 10 * layer, supergraphButton.Location.Y + explorerGap * (index + 1));
+                graphEntries[index].Size = new Size(supergraphButton.Size.Width, supergraphButton.Size.Height);
 
                 index++;
                 if (layer < 3)
@@ -225,20 +229,6 @@ namespace text
         private void CollapseExpandGraphExplorer(string name)
         {
             int start = int.Parse(name);
-
-            /*
-            if (start < graphEntries.Count - 1)
-            {
-                if (Controls.Contains(graphEntries[start + 1]))
-                {
-                    CollapseGraphExplorer(start);
-                }
-                else
-                {
-                    ExpandGraphExplorer(start);
-                }
-            }
-            */
 
             if (start < graphEntries.Count - 1)
             {
@@ -514,7 +504,7 @@ namespace text
         {
             if (dragged > 0)
             {
-                //documents[dragged-1].Location = new Point(documents[dragged-1].Location.X + e.X - xOffset, documents[dragged-1].Location.Y + e.Y - yOffset);
+                documents[dragged - 1].Location = new Point(documents[dragged-1].Location.X + e.X - xOffset, documents[dragged-1].Location.Y + e.Y - yOffset);
             }
             else if(dragged < 0)
             {
@@ -571,11 +561,7 @@ namespace text
                 Button button = (Button)sender;
                 draggedExplorer = int.Parse(button.Name) + 1;
                 originalLocation = button.Location;
-                List<string> buttons = SwapExplorerEntries(button);
-                foreach (string entry in buttons)
-                {
-                    //System.Diagnostics.Debug.WriteLine(entry);
-                }
+                order = EntryOrder(button);
                 xOffset = e.X;
                 yOffset = e.Y;
             }
@@ -587,12 +573,88 @@ namespace text
             {
                 Button button = (Button)sender;
                 draggedExplorer = 0;
-                button.Location = originalLocation;
                 Save();
-                List<string> buttons = SwapExplorerEntries(button);
-                foreach (string entry in buttons)
+                RearrangedOrder();
+
+                if (!Enumerable.SequenceEqual(order, rearranged))
                 {
-                    //System.Diagnostics.Debug.WriteLine(entry);
+                    ExplorerSwap();
+                }
+            }
+        }
+
+        private void ExplorerSwap()
+        {
+            string file;
+            if(supergraph == null)
+            {
+                file = path + supername + ".txt";
+            }
+            else
+            {
+                file = path + supergraph + ".txt";
+            }
+
+            string text = File.ReadAllText(Path.GetFullPath(file));
+            string[] graphData = text.Split("\n\n");
+            string layer = graphData[0];
+            int docCount = int.Parse(graphData[1]);
+            List<Button> documents = new List<Button>();
+            int graphCount = int.Parse(graphData[2]);
+            List<Button> graphs = new List<Button>();
+
+            for (int i = 0; i < docCount; i++)
+            {
+                string[] docData = graphData[i + 3].Split("\n");
+                string[] docPosition = docData[1].Split(",");
+                string[] docSize = docData[2].Split(",");
+
+                documents.Add(new Button());
+                Controls.Add(documents[i]);
+                documents[i].Name = (documents.Count()).ToString();
+                documents[i].Text = docData[0].ToString();
+                documents[i].Location = new Point(int.Parse(docPosition[0]), int.Parse(docPosition[1]));
+                documents[i].Size = new Size(int.Parse(docSize[0]), int.Parse(docSize[1]));
+            }
+
+            for (int i = 0; i < graphCount; i++)
+            {
+                string[] subGraphData = graphData[i + 3 + docCount].Split("\n");
+                string[] subGraphPosition = subGraphData[1].Split(",");
+                string[] subGraphSize = subGraphData[2].Split(",");
+                graphs.Add(new Button());
+                graphs[i].Name = (graphs.Count()).ToString();
+                graphs[i].Text = subGraphData[0].ToString();
+                graphs[i].Location = new Point(int.Parse(subGraphPosition[0]), int.Parse(subGraphPosition[1]));
+                graphs[i].Size = new Size(int.Parse(subGraphSize[0]), int.Parse(subGraphSize[1]));
+            }
+
+            for (int i = 0; i < rearranged.Count; i++)
+            {
+                if(rearranged[i].Text != graphs[i].Text)
+                {
+                    //Find corresponding graph
+                    Button swapGraph = null;
+                    foreach(Button graph in graphs)
+                    {
+                        if(graph.Text == rearranged[i].Text)
+                        {
+                            swapGraph = graph;
+                        }
+                    }
+
+                    if (swapGraph != null)
+                    {
+                        //Swap graphs[i] and swap
+                        System.Diagnostics.Debug.WriteLine("Swap " + graphs[i].Text + " with " + swapGraph.Text);
+
+                        string swap = swapGraph.Text + "\n" + swapGraph.Location.X + "," + swapGraph.Location.Y + "\n" + swapGraph.Size.Width + "," + swapGraph.Size.Height;
+                        string temp = graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height;
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height, "swap"));
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), swap, temp));
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), "swap", swap));
+                        break;
+                    }
                 }
             }
         }
@@ -643,43 +705,60 @@ namespace text
             return -1;
         }
 
-        private List<string> SwapExplorerEntries(Button current)
+        private List<Button> EntryOrder(Button current)
         {
-            List<string> above = new List<string>();
-            List<string> below = new List<string>();
-            bool max = false;
-            bool min = false;
-            int centre = int.Parse(current.Name);
+            supergraph = null;
+            int start = int.Parse(current.Name);
+            List<Button> above = new List<Button>();
+            List<Button> below = new List<Button>();
 
-            for (int i = 1; i < graphEntries.Count; i++)
+            for (int i = start; i >= 0; i--)
             {
-                if (centre - i <= 0 || graphEntries[centre - i].Location.X != current.Location.X)
+                if (graphEntries[i].Location.X < current.Location.X)
                 {
-                    max = true;
-                }
-                else
-                {
-                    above.Add(graphEntries[centre - 1].Text.ToString());
+                    supergraph = graphEntries[i].Text;
+                    break;
                 }
 
-                if (centre + i >= graphEntries.Count - 1 || graphEntries[centre + 1].Location.X != current.Location.X)
+                if (graphEntries[i].Location.X == current.Location.X)
                 {
-                    min = true;
-                }
-                else
-                {
-                    below.Add(graphEntries[centre + 1].Text.ToString());
-                }
-
-                if(max && min)
-                {
-                    above.Add(current.Text);
-                    above.AddRange(below);
-                    return above;
+                    above.Insert(0, graphEntries[i]);
                 }
             }
 
-            return null;
+            for (int i = start + 1; i < graphEntries.Count; i++)
+            {
+                if (graphEntries[i].Location.X < current.Location.X)
+                {
+                    break;
+                }
+
+                if (graphEntries[i].Location.X == current.Location.X)
+                {
+                    below.Add(graphEntries[i]);
+                }
+            }
+
+            above.AddRange(below);
+            return above;
+        }
+
+        private List<Button> RearrangedOrder()
+        {
+            rearranged = order.Select(i => i).ToList();
+            for (int i = 0; i < rearranged.Count; i++)
+            {
+                Button current = rearranged[i];
+                int j = i - 1;
+                while(j >= 0 && j < rearranged.Count - 1 && current.Location.Y < rearranged[j].Location.Y)
+                {
+                    rearranged[j + 1] = rearranged[j];
+                    j--;
+                }
+                rearranged[j + 1] = current;
+            }
+
+            return rearranged;
         }
 
         private void ContextMenuOpen(object sender, CancelEventArgs e)

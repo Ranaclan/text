@@ -48,7 +48,7 @@ namespace text
             this.duplicateToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.cutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.supergraph = new System.Windows.Forms.Button();
+            this.supergraphButton = new System.Windows.Forms.Button();
             this.graphContextMenu.SuspendLayout();
             this.documentContextMenu.SuspendLayout();
             this.subgraphContextMenu.SuspendLayout();
@@ -185,12 +185,12 @@ namespace text
             // 
             // supergraph
             // 
-            this.supergraph.Location = new System.Drawing.Point(12, 12);
-            this.supergraph.Name = "supergraph";
-            this.supergraph.Size = new System.Drawing.Size(75, 23);
-            this.supergraph.TabIndex = 3;
-            this.supergraph.UseVisualStyleBackColor = true;
-            this.supergraph.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphExplorer_MouseUp);
+            this.supergraphButton.Location = new System.Drawing.Point(12, 12);
+            this.supergraphButton.Name = "supergraph";
+            this.supergraphButton.Size = new System.Drawing.Size(75, 23);
+            this.supergraphButton.TabIndex = 3;
+            this.supergraphButton.UseVisualStyleBackColor = true;
+            this.supergraphButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphExplorer_MouseUp);
             // 
             // Graph
             // 
@@ -198,7 +198,7 @@ namespace text
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.ContextMenuStrip = this.graphContextMenu;
-            this.Controls.Add(this.supergraph);
+            this.Controls.Add(this.supergraphButton);
             this.KeyPreview = true;
             this.Name = "Graph";
             this.Text = "Graph";
@@ -232,6 +232,6 @@ namespace text
         private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
-        private System.Windows.Forms.Button supergraph;
+        private System.Windows.Forms.Button supergraphButton;
     }
 }
