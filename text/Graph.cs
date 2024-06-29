@@ -14,8 +14,10 @@ namespace text
     public partial class Graph : Form
     {
         string name;
+        string supername;
         string path;
         string currentName;
+        int layer;
         //interaction
         private int create = -1;
         private string[] newText = { "New document", "New subgraph" };
@@ -44,15 +46,17 @@ namespace text
         {
             InitializeComponent();
             name = "graph";
+            supername = name;
             path = @"C:\Users\kiero\OneDrive\Documents\text\";
             supergraph.Text = name;
             if (!File.Exists(path + name + ".txt"))
             {
                 using (File.Create(path + name + ".txt")) { }
-                File.WriteAllText(path + name + ".txt", "0\n\n0\n\n");
+                File.WriteAllText(path + name + ".txt", "0\n\n0\n\n0\n\n");
             }
 
             currentName = name;
+            layer = 0;
             LoadGraph(name);
             graphEntries = new List<Button>();
             explorerEntries = new List<string>();
@@ -61,7 +65,7 @@ namespace text
 
         private void Save()
         {
-            string text = docCount.ToString() + "\n\n" + graphCount.ToString() + "\n\n";
+            string text = layer.ToString() + "\n\n" + docCount.ToString() + "\n\n" + graphCount.ToString() + "\n\n";
 
             for (int i = 0; i < docCount; i++)
             {
@@ -125,14 +129,15 @@ namespace text
 
             string text = File.ReadAllText(Path.GetFullPath(file));
             string[] graphData = text.Split("\n\n");
-            docCount = int.Parse(graphData[0]);
+            layer = int.Parse(graphData[0]);
+            docCount = int.Parse(graphData[1]);
             documents = new List<Button>();
-            graphCount = int.Parse(graphData[1]);
+            graphCount = int.Parse(graphData[2]);
             graphs = new List<Button>();
             
             for (int i = 0; i < docCount; i++)
             {
-                string[] docData = graphData[i + 2].Split("\n");
+                string[] docData = graphData[i + 3].Split("\n");
                 string[] docPosition = docData[1].Split(",");
                 string[] docSize = docData[2].Split(",");
 
@@ -151,7 +156,7 @@ namespace text
 
             for (int i = 0; i < graphCount; i++)
             {
-                string[] subGraphData = graphData[i + 2 + docCount].Split("\n");
+                string[] subGraphData = graphData[i + 3 + docCount].Split("\n");
                 string[] subGraphPosition = subGraphData[1].Split(",");
                 string[] subGraphSize = subGraphData[2].Split(",");
 
@@ -176,36 +181,121 @@ namespace text
         {
             string text = File.ReadAllText(Path.GetFullPath(file));
             string[] graphData = text.Split("\n\n");
-            int docCount = int.Parse(graphData[0]);
-            int graphCount = int.Parse(graphData[1]);
+            int docs = int.Parse(graphData[1]);
+            int graphs = int.Parse(graphData[2]);
 
-            for (int i = 0; i < graphCount; i++)
+            for (int i = 0; i < graphs; i++)
             {
-                string[] subGraphData = graphData[i + 2 + docCount].Split("\n");
+                string[] subGraphData = graphData[i + 3 + docs].Split("\n");
 
-                if (!explorerEntries.Contains(subGraphData[0].ToString()))
+                graphEntries.Add(new Button());
+                Controls.Add(graphEntries[index]);
+                graphEntries[index].Name = (graphEntries.Count() - 1).ToString();
+                graphEntries[index].MouseDown += new MouseEventHandler(Explorer_MouseDown);
+                graphEntries[index].MouseUp += new MouseEventHandler(Explorer_MouseUp);
+                graphEntries[index].MouseUp += new MouseEventHandler(GraphExplorer_MouseUp);
+                graphEntries[index].MouseMove += new MouseEventHandler(Explorer_MouseMove);
+                graphEntries[index].ContextMenuStrip = null;
+                graphEntries[index].Text = subGraphData[0];
+                graphEntries[index].Location = new Point(supergraph.Location.X + 10 + 10 * layer, supergraph.Location.Y + explorerGap * (index + 1));
+                graphEntries[index].Size = new Size(supergraph.Size.Width, supergraph.Size.Height);
+
+                index++;
+                if (layer < 3)
                 {
-                    graphEntries.Add(new Button());
-                    Controls.Add(graphEntries[index]);
-                    graphEntries[index].Name = (graphEntries.Count() - 1).ToString();
-                    graphEntries[index].MouseDown += new MouseEventHandler(Explorer_MouseDown);
-                    graphEntries[index].MouseUp += new MouseEventHandler(Explorer_MouseUp);
-                    graphEntries[index].MouseUp += new MouseEventHandler(GraphExplorer_MouseUp);
-                    graphEntries[index].MouseMove += new MouseEventHandler(Explorer_MouseMove);
-                    graphEntries[index].Text = subGraphData[0].ToString();
-                    explorerEntries.Add(subGraphData[0].ToString());
-                    graphEntries[index].Location = new Point(supergraph.Location.X + 10 + 10 * layer, supergraph.Location.Y + explorerGap * (index + 1));
-                    graphEntries[index].Size = new Size(supergraph.Size.Width, supergraph.Size.Height);
-                    index++;
-
-                    if (File.Exists(path + subGraphData[0].ToString() + ".txt"))
-                    {
-                        index = LoadGraphExplorer(path + subGraphData[0].ToString() + ".txt", index, layer + 1);
-                    }
+                    index = LoadGraphExplorer(path + subGraphData[0] + ".txt", index, layer + 1);
                 }
             }
 
             return index;
+        }
+
+        private void ReloadGraphExplorer()
+        {
+            foreach(Button button in graphEntries)
+            {
+                Controls.Remove(button);
+            }
+
+            graphEntries = new List<Button>();
+            explorerEntries = new List<string>();
+            LoadGraphExplorer(path + supername + ".txt", 0, 0);
+        }
+
+        private void CollapseExpandGraphExplorer(string name)
+        {
+            int start = int.Parse(name);
+
+            /*
+            if (start < graphEntries.Count - 1)
+            {
+                if (Controls.Contains(graphEntries[start + 1]))
+                {
+                    CollapseGraphExplorer(start);
+                }
+                else
+                {
+                    ExpandGraphExplorer(start);
+                }
+            }
+            */
+
+            if (start < graphEntries.Count - 1)
+            {
+                if (graphEntries[start + 1].Name.Contains(":"))
+                {
+                    ExpandGraphExplorer(start);
+                }
+                else
+                {
+                    CollapseGraphExplorer(start);
+                }
+            }
+        }
+
+        private void CollapseGraphExplorer(int start)
+        {
+            bool removal = true;
+            for (int i = start + 1, remove = 0; i < graphEntries.Count; i++)
+            {
+                if (removal && graphEntries[i].Location.X > graphEntries[start].Location.X)
+                {
+                    if (!graphEntries[i].Name.Contains(":"))
+                    {
+                        Controls.Remove(graphEntries[i]);
+                        remove++;
+                    }
+
+                    graphEntries[i].Name += ":" + graphEntries[start].Name;
+
+                }
+                else
+                {
+                    removal = false;
+                    graphEntries[i].Location = new Point(graphEntries[i].Location.X, graphEntries[i].Location.Y - explorerGap * remove);
+                }
+            }
+        }
+
+        private void ExpandGraphExplorer(int start)
+        {
+            for (int i = start + 1, add = 0; i < graphEntries.Count; i++)
+            {
+                if (graphEntries[i].Name.Contains(":" + graphEntries[start].Name))
+                {
+                    graphEntries[i].Name = graphEntries[i].Name.Replace(":" + graphEntries[start].Name, "");
+
+                    if (!graphEntries[i].Name.Contains(":"))
+                    {
+                        Controls.Add(graphEntries[i]);
+                        add++;
+                    }
+                }
+                else
+                {
+                    graphEntries[i].Location = new Point(graphEntries[i].Location.X, graphEntries[i].Location.Y + explorerGap * add);
+                }
+            }
         }
 
         private void NewFeature(int type, Point position)
@@ -231,8 +321,6 @@ namespace text
                     CreateSubgraph();
                     break;
             }
-
-            Save();
         }
 
         private void New_KeyDown(object sender, KeyEventArgs e)
@@ -273,6 +361,7 @@ namespace text
             docCount++;
 
             New_Remove();
+            Save();
         }
 
         private void CreateSubgraph()
@@ -289,17 +378,20 @@ namespace text
             graphs[^1].Size = new Size(80, 80);
             graphs[^1].BackColor = Color.White;
 
-            graphEntries.Add(new Button());
-            Controls.Add(graphEntries[^1]);
-            graphEntries[^1].Name = (graphEntries.Count() - 1).ToString();
-            graphEntries[^1].MouseUp += new MouseEventHandler(GraphExplorer_MouseUp);
-            graphEntries[^1].Text = graphs[^1].Text.ToString();
-            graphEntries[^1].Location = new Point(supergraph.Location.X + 10, supergraph.Location.Y + 30 * graphEntries.Count);
-            graphEntries[^1].Size = new Size(supergraph.Size.Width, supergraph.Size.Height);
-
             graphCount++;
 
+            string file = path + graphs[^1].Text + ".txt";
+
+            if (!File.Exists(file))
+            {
+                using (File.Create(file)) { }
+                File.WriteAllText(file, (layer + 1).ToString() + "\n\n0\n\n0\n\n");
+            }
+
             New_Remove();
+            Save();
+
+            ReloadGraphExplorer();
         }
 
         private void OpenDocument(string name)
@@ -422,7 +514,7 @@ namespace text
         {
             if (dragged > 0)
             {
-                documents[dragged-1].Location = new Point(documents[dragged-1].Location.X + e.X - xOffset, documents[dragged-1].Location.Y + e.Y - yOffset);
+                //documents[dragged-1].Location = new Point(documents[dragged-1].Location.X + e.X - xOffset, documents[dragged-1].Location.Y + e.Y - yOffset);
             }
             else if(dragged < 0)
             {
@@ -462,15 +554,6 @@ namespace text
             }
         }
 
-        private void GraphExplorer_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                Button button = (Button)sender;
-                OpenSubgraph(button.Text);
-            }
-        }
-
         private void AddDocument(object sender, EventArgs e)
         {
             NewFeature(0, MousePosition);
@@ -491,7 +574,7 @@ namespace text
                 List<string> buttons = SwapExplorerEntries(button);
                 foreach (string entry in buttons)
                 {
-                    System.Diagnostics.Debug.WriteLine(entry);
+                    //System.Diagnostics.Debug.WriteLine(entry);
                 }
                 xOffset = e.X;
                 yOffset = e.Y;
@@ -509,7 +592,7 @@ namespace text
                 List<string> buttons = SwapExplorerEntries(button);
                 foreach (string entry in buttons)
                 {
-                    System.Diagnostics.Debug.WriteLine(entry);
+                    //System.Diagnostics.Debug.WriteLine(entry);
                 }
             }
         }
@@ -523,6 +606,21 @@ namespace text
             else if (draggedExplorer < 0)
             {
                 graphs[-draggedExplorer - 1].Location = new Point(graphs[-draggedExplorer - 1].Location.X + e.X - xOffset, graphs[-draggedExplorer - 1].Location.Y + e.Y - yOffset);
+            }
+        }
+
+        private void GraphExplorer_MouseUp(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                OpenSubgraph(button.Text);
+            }
+
+            if (e.Button == MouseButtons.Middle && button.Name != "supergraph")
+            {
+                CollapseExpandGraphExplorer(button.Name);
             }
         }
 
