@@ -183,13 +183,14 @@ namespace text
             this.deleteToolStripMenuItem1.Size = new System.Drawing.Size(124, 22);
             this.deleteToolStripMenuItem1.Text = "Delete";
             // 
-            // supergraph
+            // supergraphButton
             // 
             this.supergraphButton.Location = new System.Drawing.Point(12, 12);
-            this.supergraphButton.Name = "supergraph";
+            this.supergraphButton.Name = "supergraphButton";
             this.supergraphButton.Size = new System.Drawing.Size(75, 23);
             this.supergraphButton.TabIndex = 3;
             this.supergraphButton.UseVisualStyleBackColor = true;
+            this.supergraphButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Explorer_MouseDown);
             this.supergraphButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphExplorer_MouseUp);
             // 
             // Graph
