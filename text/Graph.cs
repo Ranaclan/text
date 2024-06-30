@@ -584,12 +584,88 @@ namespace text
 
                 if (!Enumerable.SequenceEqual(order, rearranged))
                 {
-                    ExplorerSwap();
+                    ExplorerSwap(button);
                 }
                 ReloadGraphExplorer();
             }
         }
 
+        private void ExplorerSwap(Button moved)
+        {
+            for (int i = 0; i < rearranged.Count; i++)
+            {
+                if (rearranged[i] == moved)
+                {
+                    Button previous = null;
+                    if(i > 0)
+                    {
+                        previous = rearranged[i - 1];
+                    }
+
+                    string file;
+                    if (supergraph == null)
+                    {
+                        file = path + supername + ".txt";
+                    }
+                    else
+                    {
+                        file = path + supergraph + ".txt";
+                    }
+
+                    string text = File.ReadAllText(Path.GetFullPath(file));
+                    string[] graphData = text.Split("\n\n");
+                    int docCount = int.Parse(graphData[1]);
+                    int graphCount = int.Parse(graphData[2]);
+                    string movedData = "";
+                    string previousData = "";
+
+                    if (previous == null)
+                    {
+                        //top
+                        for (int j = 0; j < graphCount; j++)
+                        {
+                            string[] subGraphData = graphData[j + 3 + docCount].Split("\n");
+                            if (subGraphData[0] == moved.Text)
+                            {
+                                movedData = graphData[j + 3 + docCount];
+                                break;
+                            }
+                        }
+
+                        previousData = graphData[3 + docCount];
+
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), "\n\n" + movedData, ""));
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), previousData, movedData + "\n\n" + previousData));
+                    }
+                    else
+                    {
+                        for (int j = 0; j < graphCount; j++)
+                        {
+                            string[] subGraphData = graphData[j + 3 + docCount].Split("\n");
+                            if (subGraphData[0] == moved.Text)
+                            {
+                                movedData = "\n\n" + graphData[j + 3 + docCount];
+                            }
+                            else if (subGraphData[0] == previous.Text)
+                            {
+                                previousData = graphData[j + 3 + docCount];
+                            }
+                            else if (movedData != "" && previousData != "")
+                            {
+                                break;
+                            }
+                        }
+
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), movedData, ""));
+                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), previousData, previousData + movedData));
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        /*
         private void ExplorerSwap()
         {
             string file;
@@ -776,8 +852,8 @@ namespace text
                     }
                 }
             }
-            */
         }
+        */
 
         private void Explorer_MouseMove(object sender, MouseEventArgs e)
         {
