@@ -198,7 +198,6 @@ namespace text
                 graphEntries[index].Name = (graphEntries.Count() - 1).ToString();
                 graphEntries[index].MouseDown += new MouseEventHandler(Explorer_MouseDown);
                 graphEntries[index].MouseUp += new MouseEventHandler(Explorer_MouseUp);
-                graphEntries[index].MouseUp += new MouseEventHandler(GraphExplorer_MouseUp);
                 graphEntries[index].MouseMove += new MouseEventHandler(Explorer_MouseMove);
                 graphEntries[index].ContextMenuStrip = null;
                 graphEntries[index].Text = subGraphData[0];
@@ -575,18 +574,29 @@ namespace text
 
         private void Explorer_MouseUp(object sender, MouseEventArgs e)
         {
+            Button button = (Button)sender;
             if (e.Button == MouseButtons.Left)
             {
-                Button button = (Button)sender;
                 draggedExplorer = 0;
-                Save();
-                RearrangedOrder();
-
-                if (!Enumerable.SequenceEqual(order, rearranged))
+                if ((DateTime.Now - explorerClick).TotalMilliseconds < 200)
                 {
-                    ExplorerSwap(button);
+                    OpenSubgraph(button.Text);
+                }
+                else
+                {
+                    RearrangedOrder();
+
+                    if (!Enumerable.SequenceEqual(order, rearranged))
+                    {
+                        ExplorerSwap(button);
+                    }
                 }
                 ReloadGraphExplorer();
+            }
+
+            if (e.Button == MouseButtons.Middle && button.Name != "supergraph")
+            {
+                CollapseExpandGraphExplorer(button.Name);
             }
         }
 
@@ -665,196 +675,6 @@ namespace text
             }
         }
 
-        /*
-        private void ExplorerSwap()
-        {
-            string file;
-            if(supergraph == null)
-            {
-                file = path + supername + ".txt";
-            }
-            else
-            {
-                file = path + supergraph + ".txt";
-            }
-
-            string text = File.ReadAllText(Path.GetFullPath(file));
-            string[] graphData = text.Split("\n\n");
-            int docCount = int.Parse(graphData[1]);
-            List<Button> documents = new List<Button>();
-            int graphCount = int.Parse(graphData[2]);
-            List<Button> graphs = new List<Button>();
-
-            for (int i = 0; i < docCount; i++)
-            {
-                string[] docData = graphData[i + 3].Split("\n");
-                string[] docPosition = docData[1].Split(",");
-                string[] docSize = docData[2].Split(",");
-
-                documents.Add(new Button());
-                Controls.Add(documents[i]);
-                documents[i].Name = (documents.Count()).ToString();
-                documents[i].Text = docData[0].ToString();
-                documents[i].Location = new Point(int.Parse(docPosition[0]), int.Parse(docPosition[1]));
-                documents[i].Size = new Size(int.Parse(docSize[0]), int.Parse(docSize[1]));
-            }
-
-            for (int i = 0; i < graphCount; i++)
-            {
-                string[] subGraphData = graphData[i + 3 + docCount].Split("\n");
-                string[] subGraphPosition = subGraphData[1].Split(",");
-                string[] subGraphSize = subGraphData[2].Split(",");
-                graphs.Add(new Button());
-                graphs[i].Name = (graphs.Count()).ToString();
-                graphs[i].Text = subGraphData[0].ToString();
-                graphs[i].Location = new Point(int.Parse(subGraphPosition[0]), int.Parse(subGraphPosition[1]));
-                graphs[i].Size = new Size(int.Parse(subGraphSize[0]), int.Parse(subGraphSize[1]));
-            }
-
-            Button swapTarget = null;
-            string swap = "";
-            bool down = false;
-            for (int i = 0; i < rearranged.Count; i++)
-            {
-                System.Diagnostics.Debug.WriteLine(i + " graph " + graphs[i].Text + ", " + rearranged[i].Text);
-                if (swapTarget == null)
-                {
-                    if (rearranged[i].Text != graphs[i].Text)
-                    {
-                        swapTarget = graphs[i];
-                        swap = swapTarget.Text + "\n" + swapTarget.Location.X + "," + swapTarget.Location.Y + "\n" + swapTarget.Size.Width + "," + swapTarget.Size.Height;
-                        System.Diagnostics.Debug.WriteLine(i + " swap " + swapTarget.Text);
-                    }
-                }
-                else if(rearranged[i].Text == swapTarget.Text)
-                {
-                    System.Diagnostics.Debug.WriteLine("moved down");
-                    down = true;
-                }
-            }
-
-            if (down)
-            {
-                for (int i = 0; i < rearranged.Count; i++)
-                {
-                    if (rearranged[i].Text == swapTarget.Text)
-                    {
-                        System.Diagnostics.Debug.WriteLine(i + " new previous " + graphs[i].Text);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = rearranged.Count - 1; i >= 0; i--)
-                {
-                    if (rearranged[i].Text == swapTarget.Text)
-                    {
-                        System.Diagnostics.Debug.WriteLine(i + " new previous " + graphs[i].Text);
-                        break;
-                    }
-                }
-            }
-            /*
-            for (int i = 0; i < rearranged.Count; i++)
-            {
-                System.Diagnostics.Debug.WriteLine(i + " graph " + graphs[i].Text + ", " + rearranged[i].Text);
-                if (swapTarget == null && rearranged[i].Text != graphs[i].Text)
-                {
-                    swapTarget = graphs[i];
-                    swap = swapTarget.Text + "\n" + swapTarget.Location.X + "," + swapTarget.Location.Y + "\n" + swapTarget.Size.Width + "," + swapTarget.Size.Height;
-                    System.Diagnostics.Debug.WriteLine(i + " swap " + swapTarget.Text);
-                }
-                else if (rearranged[i].Text != swapTarget.Text)
-                {
-                }
-                else if (rearranged[i].Text == swapTarget.Text)
-                {
-                    System.Diagnostics.Debug.WriteLine(i + " new previous " + graphs[i].Text);
-                    break;
-                }
-                /*
-                if(swapTarget == null && rearranged[i].Text != graphs[i].Text)
-                {
-                    swapTarget = graphs[i];
-                    swap = swapTarget.Text + "\n" + swapTarget.Location.X + "," + swapTarget.Location.Y + "\n" + swapTarget.Size.Width + "," + swapTarget.Size.Height;
-                    System.Diagnostics.Debug.WriteLine(i + " swap " + swapTarget.Text);
-                }
-                else if(rearranged[i].Text != swapTarget.Text)
-                {
-                    //File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), "a\n414,165\n80,80", "b\n276,197\n80,80"));
-                    //System.Diagnostics.Debug.WriteLine(graphs[i - 1].Text + "\n" + graphs[i - 1].Location.X + "," + graphs[i - 1].Location.Y + "\n" + graphs[i - 1].Size.Width + "," + graphs[i - 1].Size.Height);
-                    //System.Diagnostics.Debug.WriteLine(graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height);
-                    //graphs[i - 1] = graphs[i];
-                    //File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), graphs[i - 1].Text + "\n" + graphs[i - 1].Location.X + "," + graphs[i - 1].Location.Y + "\n" + graphs[i - 1].Size.Width + "," + graphs[i - 1].Size.Height, graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height));
-                    System.Diagnostics.Debug.WriteLine(i + " overwrite " + graphs[i - 1].Text + " with " + graphs[i].Text);
-                    File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), graphs[i - 1].Text, graphs[i].Text + ";"));
-                    //System.Diagnostics.Debug.WriteLine("overwrite " + graphs[i - 1].Text + " with " + graphs[i].Text);
-                }
-                else if(rearranged[i].Text == swapTarget.Text)
-                {
-                    //graphs[i] = swapTarget;
-                    System.Diagnostics.Debug.WriteLine(i + " swap " + graphs[i].Text + " with " + swapTarget.Text);
-                    File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height, swap));
-                    //File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), ";", ""));
-                }
-
-
-            if (rearranged[i] == swapTarget && false)
-                {
-                    //Find corresponding graph
-                    System.Diagnostics.Debug.WriteLine("with " + graphs[i].Text);
-                    Button swapGraph = null;
-                    foreach (Button graph in graphs)
-                    {
-                        if (graph.Text == rearranged[i].Text)
-                        {
-                            swapGraph = graph;
-                        }
-                    }
-
-                    if (swapGraph != null)
-                    {
-                        //Swap graphs[i] and swapGraph
-                        //string swap = swapGraph.Text + "\n" + swapGraph.Location.X + "," + swapGraph.Location.Y + "\n" + swapGraph.Size.Width + "," + swapGraph.Size.Height;
-                        string temp = graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height;
-                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height, "swap"));
-                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), swap, temp));
-                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), "swap", swap));
-                        break;
-                    }
-                }
-
-                /*
-                if (rearranged[i].Text != graphs[i].Text && false)
-                {
-                    //Find corresponding graph
-                    Button swapGraph = null;
-                    foreach(Button graph in graphs)
-                    {
-                        if(graph.Text == rearranged[i].Text)
-                        {
-                            swapGraph = graph;
-                        }
-                    }
-
-                    if (swapGraph != null)
-                    {
-                        //Swap graphs[i] and swapGraph
-                        System.Diagnostics.Debug.WriteLine("Swap " + graphs[i].Text + " with " + swapGraph.Text);
-
-                        string swap = swapGraph.Text + "\n" + swapGraph.Location.X + "," + swapGraph.Location.Y + "\n" + swapGraph.Size.Width + "," + swapGraph.Size.Height;
-                        string temp = graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height;
-                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), graphs[i].Text + "\n" + graphs[i].Location.X + "," + graphs[i].Location.Y + "\n" + graphs[i].Size.Width + "," + graphs[i].Size.Height, "swap"));
-                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), swap, temp));
-                        File.WriteAllText(file, Regex.Replace(File.ReadAllText(file), "swap", swap));
-                        break;
-                    }
-                }
-            }
-        }
-        */
-
         private void Explorer_MouseMove(object sender, MouseEventArgs e)
         {
             if (draggedExplorer > 0)
@@ -864,21 +684,6 @@ namespace text
             else if (draggedExplorer < 0)
             {
                 graphs[-draggedExplorer - 1].Location = new Point(graphs[-draggedExplorer - 1].Location.X + e.X - xOffset, graphs[-draggedExplorer - 1].Location.Y + e.Y - yOffset);
-            }
-        }
-
-        private void GraphExplorer_MouseUp(object sender, MouseEventArgs e)
-        {
-            Button button = (Button)sender;
-
-            if (e.Button == MouseButtons.Left && (DateTime.Now - explorerClick).TotalMilliseconds < 200)
-            {
-                OpenSubgraph(button.Text);
-            }
-
-            if (e.Button == MouseButtons.Middle && button.Name != "supergraph")
-            {
-                CollapseExpandGraphExplorer(button.Name);
             }
         }
 

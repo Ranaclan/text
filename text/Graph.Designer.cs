@@ -191,7 +191,7 @@ namespace text
             this.supergraphButton.TabIndex = 3;
             this.supergraphButton.UseVisualStyleBackColor = true;
             this.supergraphButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Explorer_MouseDown);
-            this.supergraphButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphExplorer_MouseUp);
+            this.supergraphButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Explorer_MouseUp);
             // 
             // Graph
             // 
