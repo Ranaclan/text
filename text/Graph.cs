@@ -36,6 +36,7 @@ namespace text
         private List<Button> rearranged;
         private string supergraph;
         private DateTime explorerClick;
+        private const int maxLayer = 3;
         //graphs
         private List<Button> graphs;
         private int graphCount = 0;
@@ -65,7 +66,7 @@ namespace text
             LoadGraph(name);
             graphEntries = new List<Button>();
             explorerEntries = new List<string>();
-            LoadGraphExplorer(path + name + ".txt", 0, 0);
+            LoadGraphExplorer(path + name + ".txt", 0, 0, new List<string>(), new List<string>());
         }
 
         private void Save()
@@ -182,33 +183,36 @@ namespace text
 
         }
 
-        private int LoadGraphExplorer(string file, int index, int layer)
+        private int LoadGraphExplorer(string file, int index, int layer, List<string> unvisited, List<string> visited)
         {
+            List<string> currentVisited = new List<string>(visited);
+
             string text = File.ReadAllText(Path.GetFullPath(file));
             string[] graphData = text.Split("\n\n");
             int docs = int.Parse(graphData[1]);
             int graphs = int.Parse(graphData[2]);
 
+            List<string> newUnvisited = new List<string>(unvisited);
             for (int i = 0; i < graphs; i++)
             {
-                string[] subGraphData = graphData[i + 3 + docs].Split("\n");
+                string entryName = graphData[i + 3 + docs].Split("\n")[0];
 
-                graphEntries.Add(new Button());
-                Controls.Add(graphEntries[index]);
-                graphEntries[index].Name = (graphEntries.Count() - 1).ToString();
-                graphEntries[index].MouseDown += new MouseEventHandler(Explorer_MouseDown);
-                graphEntries[index].MouseUp += new MouseEventHandler(Explorer_MouseUp);
-                graphEntries[index].MouseMove += new MouseEventHandler(Explorer_MouseMove);
-                graphEntries[index].ContextMenuStrip = null;
-                graphEntries[index].Text = subGraphData[0];
-                graphEntries[index].Location = new Point(supergraphButton.Location.X + 10 + 10 * layer, supergraphButton.Location.Y + explorerGap * (index + 1));
-                graphEntries[index].Size = new Size(supergraphButton.Size.Width, supergraphButton.Size.Height);
+                newUnvisited.Add(path + entryName);
+            }
 
+            for (int i = 0; i < graphs; i++)
+            {
+                string entryName = graphData[i + 3 + docs].Split("\n")[0];
+
+                AddGraphExplorerEntry(index, layer, entryName);
                 index++;
-                if (layer < 3)
+
+                if (!visited.Contains(entryName) && (!unvisited.Contains(path + entryName) || file == path + entryName))
                 {
-                    index = LoadGraphExplorer(path + subGraphData[0] + ".txt", index, layer + 1);
+                    index = LoadGraphExplorer(path + entryName + ".txt", index, layer + 1, newUnvisited, visited);
                 }
+
+                visited.Add(entryName);
             }
 
             return index;
@@ -223,7 +227,21 @@ namespace text
 
             graphEntries = new List<Button>();
             explorerEntries = new List<string>();
-            LoadGraphExplorer(path + supername + ".txt", 0, 0);
+            LoadGraphExplorer(path + supername + ".txt", 0, 0, new List<string>(), new List<string>());
+        }
+
+        private void AddGraphExplorerEntry(int index, int layer, string entryName)
+        {
+            graphEntries.Add(new Button());
+            Controls.Add(graphEntries[index]);
+            graphEntries[index].Name = (graphEntries.Count() - 1).ToString();
+            graphEntries[index].MouseDown += new MouseEventHandler(Explorer_MouseDown);
+            graphEntries[index].MouseUp += new MouseEventHandler(Explorer_MouseUp);
+            graphEntries[index].MouseMove += new MouseEventHandler(Explorer_MouseMove);
+            graphEntries[index].ContextMenuStrip = null;
+            graphEntries[index].Text = entryName;
+            graphEntries[index].Location = new Point(supergraphButton.Location.X + 10 + 10 * layer, supergraphButton.Location.Y + explorerGap * (index + 1));
+            graphEntries[index].Size = new Size(supergraphButton.Size.Width, supergraphButton.Size.Height);
         }
 
         private void CollapseExpandGraphExplorer(string name)
@@ -590,8 +608,8 @@ namespace text
                     {
                         ExplorerSwap(button);
                     }
+                    ReloadGraphExplorer();
                 }
-                ReloadGraphExplorer();
             }
 
             if (e.Button == MouseButtons.Middle && button.Name != "supergraph")
