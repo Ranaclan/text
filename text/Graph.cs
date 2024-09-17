@@ -185,19 +185,21 @@ namespace text
 
         private int LoadGraphExplorer(string file, int index, int layer, List<string> unvisited, List<string> visited)
         {
-            List<string> currentVisited = new List<string>(visited);
-
             string text = File.ReadAllText(Path.GetFullPath(file));
             string[] graphData = text.Split("\n\n");
             int docs = int.Parse(graphData[1]);
             int graphs = int.Parse(graphData[2]);
 
-            List<string> newUnvisited = new List<string>(unvisited);
+            List<string> newUnvisitied = new List<string>(unvisited);
+
             for (int i = 0; i < graphs; i++)
             {
                 string entryName = graphData[i + 3 + docs].Split("\n")[0];
 
-                newUnvisited.Add(path + entryName);
+                if (!newUnvisitied.Contains(entryName))
+                {
+                    newUnvisitied.Add(entryName);
+                }
             }
 
             for (int i = 0; i < graphs; i++)
@@ -207,12 +209,11 @@ namespace text
                 AddGraphExplorerEntry(index, layer, entryName);
                 index++;
 
-                if (!visited.Contains(entryName) && (!unvisited.Contains(path + entryName) || file == path + entryName))
+                if (!visited.Contains(entryName) && !unvisited.Contains(entryName))
                 {
-                    index = LoadGraphExplorer(path + entryName + ".txt", index, layer + 1, newUnvisited, visited);
+                    index = LoadGraphExplorer(path + entryName + ".txt", index, layer + 1, newUnvisitied, visited);
+                    visited.Add(entryName);
                 }
-
-                visited.Add(entryName);
             }
 
             return index;
