@@ -66,7 +66,9 @@ namespace text
             LoadGraph(name);
             graphEntries = new List<Button>();
             explorerEntries = new List<string>();
-            LoadGraphExplorer(path + name + ".txt", 0, 0, new List<string>(), new List<string>());
+            List<string> visited = new List<string>();
+            visited.Add("graph");
+            LoadGraphExplorer(path + name + ".txt", 0, 0, visited, new List<string>());
         }
 
         private void Save()
